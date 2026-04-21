@@ -1,0 +1,273 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SentimentLabel {
+  VERY_POSITIVE
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  VERY_NEGATIVE
+}
+
+enum RecommendationAction {
+  STRONG_BUY
+  BUY
+  HOLD
+  SELL
+  STRONG_SELL
+}
+
+enum HorizonTerm {
+  SHORT
+  MEDIUM
+  LONG
+}
+
+model News {
+  id              String           @id @default(cuid())
+  source          String
+  title           String
+  slug            String           @unique
+  content         String
+  publishedAt     DateTime
+  url             String           @unique
+  fingerprint     String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  tags            NewsTagOnNews[]
+  sentiment       NewsSentiment?
+
+  @@index([publishedAt])
+  @@index([source])
+  @@map("news")
+}
+
+model NewsTag {
+  id          String         @id @default(cuid())
+  code        String         @unique
+  label       String
+  createdAt   DateTime       @default(now())
+  newsRecords NewsTagOnNews[]
+
+  @@map("news_tags")
+}
+
+model NewsTagOnNews {
+  newsId      String
+  tagId       String
+  assignedAt  DateTime @default(now())
+  news        News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  tag         NewsTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([newsId, tagId])
+  @@index([tagId])
+  @@map("news_tags_on_news")
+}
+
+model NewsSentiment {
+  id                String         @id @default(cuid())
+  newsId            String         @unique
+  summary           String
+  label             SentimentLabel
+  score             Int
+  confidence        Int
+  reason            String
+  aiProvider        String?
+  modelName         String?
+  createdAt         DateTime       @default(now())
+  news              News           @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@index([score])
+  @@map("news_sentiment")
+}
+
+model FinancialReport {
+  id                String             @id @default(cuid())
+  symbol            String
+  fiscalYear        Int
+  fiscalQuarter     Int
+  periodStart       DateTime
+  periodEnd         DateTime
+  revenue           Decimal            @db.Decimal(20, 2)
+  grossProfit       Decimal            @db.Decimal(20, 2)
+  netProfit         Decimal            @db.Decimal(20, 2)
+  eps               Decimal            @db.Decimal(10, 2)
+  pe                Decimal?           @db.Decimal(10, 2)
+  pb                Decimal?           @db.Decimal(10, 2)
+  grossMargin       Decimal            @db.Decimal(8, 4)
+  debt              Decimal            @db.Decimal(20, 2)
+  cashFlow          Decimal            @db.Decimal(20, 2)
+  inventory         Decimal            @db.Decimal(20, 2)
+  steelOutput       Decimal            @db.Decimal(20, 2)
+  sourceUrl         String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  metrics           FinancialMetric[]
+  analyses          QuarterlyAnalysis[]
+
+  @@unique([symbol, fiscalYear, fiscalQuarter])
+  @@index([symbol, periodEnd])
+  @@map("financial_reports")
+}
+
+model FinancialMetric {
+  id                String          @id @default(cuid())
+  reportId          String
+  metricKey         String
+  metricName        String
+  value             Decimal         @db.Decimal(20, 4)
+  unit              String?
+  createdAt         DateTime        @default(now())
+  report            FinancialReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, metricKey])
+  @@map("financial_metrics")
+}
+
+model QuarterlyAnalysis {
+  id                String          @id @default(cuid())
+  reportId          String
+  strength          String
+  weakness          String
+  trend             String
+  financialScore    Int
+  confidence        Int
+  generatedBy       String
+  generatedAt       DateTime        @default(now())
+  report            FinancialReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([financialScore])
+  @@map("quarterly_analysis")
+}
+
+model StockQuote {
+  id                String             @id @default(cuid())
+  symbol            String
+  timestamp         DateTime
+  open              Decimal            @db.Decimal(12, 3)
+  high              Decimal            @db.Decimal(12, 3)
+  low               Decimal            @db.Decimal(12, 3)
+  close             Decimal            @db.Decimal(12, 3)
+  volume            BigInt
+  createdAt         DateTime           @default(now())
+  technicalSnapshot TechnicalSnapshot?
+
+  @@unique([symbol, timestamp])
+  @@index([symbol, timestamp])
+  @@map("stock_quotes")
+}
+
+model TechnicalSnapshot {
+  id                String          @id @default(cuid())
+  symbol            String
+  quoteId           String          @unique
+  rsi               Decimal         @db.Decimal(8, 4)
+  macd              Decimal         @db.Decimal(12, 6)
+  macdSignal        Decimal         @db.Decimal(12, 6)
+  macdHistogram     Decimal         @db.Decimal(12, 6)
+  ma20              Decimal         @db.Decimal(12, 4)
+  ma50              Decimal         @db.Decimal(12, 4)
+  ma200             Decimal         @db.Decimal(12, 4)
+  ema9              Decimal         @db.Decimal(12, 4)
+  ema20             Decimal         @db.Decimal(12, 4)
+  ema50             Decimal         @db.Decimal(12, 4)
+  bbUpper           Decimal         @db.Decimal(12, 4)
+  bbMiddle          Decimal         @db.Decimal(12, 4)
+  bbLower           Decimal         @db.Decimal(12, 4)
+  supportLevel      Decimal         @db.Decimal(12, 4)
+  resistanceLevel   Decimal         @db.Decimal(12, 4)
+  volumeBreakout    Boolean         @default(false)
+  goldenCross       Boolean         @default(false)
+  deathCross        Boolean         @default(false)
+  score             Int
+  summary           String
+  createdAt         DateTime        @default(now())
+  quote             StockQuote      @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([symbol, createdAt])
+  @@map("technical_snapshots")
+}
+
+model MacroDataPoint {
+  id                String          @id @default(cuid())
+  metricKey         String
+  metricName        String
+  value             Decimal         @db.Decimal(16, 4)
+  unit              String?
+  source            String
+  observedAt        DateTime
+  createdAt         DateTime        @default(now())
+
+  @@index([metricKey, observedAt])
+  @@map("macro_data_points")
+}
+
+model MacroSnapshot {
+  id                String          @id @default(cuid())
+  score             Int
+  ironOreEffect     Int
+  hrcEffect         Int
+  usdVndEffect      Int
+  interestEffect    Int
+  publicInvestEffect Int
+  realEstateEffect  Int
+  chinaExportEffect Int
+  note              String
+  createdAt         DateTime        @default(now())
+
+  @@index([createdAt])
+  @@map("macro_snapshots")
+}
+
+model RecommendationSnapshot {
+  id                String               @id @default(cuid())
+  symbol            String
+  action            RecommendationAction
+  confidence        Int
+  weightedScore     Decimal              @db.Decimal(8, 4)
+  newsScore         Int
+  technicalScore    Int
+  financialScore    Int
+  macroScore        Int
+  shortAction       RecommendationAction
+  shortTargetPrice  Decimal?             @db.Decimal(12, 3)
+  shortStopLoss     Decimal?             @db.Decimal(12, 3)
+  shortTakeProfit   Decimal?             @db.Decimal(12, 3)
+  shortTimeFrame    String
+  mediumAction      RecommendationAction
+  mediumTargetPrice Decimal?             @db.Decimal(12, 3)
+  mediumStopLoss    Decimal?             @db.Decimal(12, 3)
+  mediumTakeProfit  Decimal?             @db.Decimal(12, 3)
+  mediumTimeFrame   String
+  longAction        RecommendationAction
+  longTargetPrice   Decimal?             @db.Decimal(12, 3)
+  longStopLoss      Decimal?             @db.Decimal(12, 3)
+  longTakeProfit    Decimal?             @db.Decimal(12, 3)
+  longTimeFrame     String
+  reasoning         Json
+  createdAt         DateTime             @default(now())
+
+  @@index([symbol, createdAt])
+  @@map("recommendation_snapshots")
+}
+
+model CrawlerRun {
+  id                String          @id @default(cuid())
+  crawlerName       String
+  status            String
+  fetchedCount      Int             @default(0)
+  insertedCount     Int             @default(0)
+  deduplicatedCount Int             @default(0)
+  errorMessage      String?
+  startedAt         DateTime        @default(now())
+  finishedAt        DateTime?
+
+  @@index([crawlerName, startedAt])
+  @@map("crawler_runs")
+}
