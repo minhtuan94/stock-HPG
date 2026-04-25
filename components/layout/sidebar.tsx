@@ -4,19 +4,19 @@ import { BarChart3, Newspaper, Landmark, Cog, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
-  { href: "/news", label: "News", icon: Newspaper },
-  { href: "/financials", label: "Financials", icon: Landmark },
-  { href: "/analysis", label: "Analysis", icon: Activity },
-  { href: "/settings", label: "Settings", icon: Cog },
+  { href: "/dashboard", label: "Tổng quan", icon: BarChart3 },
+  { href: "/news", label: "Tin tức", icon: Newspaper },
+  { href: "/financials", label: "Tài chính", icon: Landmark },
+  { href: "/analysis", label: "Phân tích", icon: Activity },
+  { href: "/settings", label: "Cài đặt", icon: Cog },
 ];
 
 export function Sidebar({ pathname }: { pathname: string }) {
   return (
     <aside className="panel h-full min-h-[560px] w-full p-4 md:w-64">
       <div className="mb-6 px-2">
-        <p className="text-xs uppercase tracking-[0.24em] text-terminal-dim">HPG Terminal</p>
-        <h1 className="mt-2 font-[var(--font-grotesk)] text-xl font-semibold">Steel Intelligence</h1>
+        <p className="text-xs uppercase tracking-[0.24em] text-terminal-dim">Trạm HPG</p>
+        <h1 className="mt-2 font-[var(--font-grotesk)] text-xl font-semibold">Trung tâm Phân tích Thép</h1>
       </div>
       <nav className="space-y-2">
         {items.map((item) => {

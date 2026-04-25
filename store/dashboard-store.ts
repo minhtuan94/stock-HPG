@@ -61,10 +61,13 @@ type DashboardData = {
 
 type DashboardStore = {
   data: DashboardData | null;
-  setData: (payload: DashboardData) => void;
+  setData: (payload: DashboardData | ((prev: DashboardData | null) => DashboardData | null)) => void;
 };
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
   data: null,
-  setData: (payload) => set({ data: payload }),
+  setData: (payload) =>
+    set((state) => ({
+      data: typeof payload === "function" ? payload(state.data) : payload,
+    })),
 }));

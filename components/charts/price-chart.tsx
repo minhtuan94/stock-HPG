@@ -9,7 +9,7 @@ type PriceChartProps = {
 export function PriceChart({ points }: PriceChartProps) {
   return (
     <div className="panel h-[280px] p-4">
-      <p className="mb-3 text-xs uppercase tracking-[0.2em] text-terminal-dim">Price Trend</p>
+      <p className="mb-3 text-xs uppercase tracking-[0.2em] text-terminal-dim">Diễn biến giá</p>
       <ResponsiveContainer width="100%" height="90%">
         <LineChart data={points}>
           <XAxis dataKey="t" tick={{ fill: "#84a6a1", fontSize: 11 }} tickLine={false} axisLine={false} />

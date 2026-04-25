@@ -11,6 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "crawl:news": "tsx scripts/run-news-crawler.ts",
+    "seed:financials": "tsx scripts/seed-financials.ts",
+    "analyze:financials:ai": "tsx scripts/generate-financial-ai-analysis.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [

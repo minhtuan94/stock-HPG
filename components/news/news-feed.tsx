@@ -11,7 +11,7 @@ type FeedItem = {
 export function NewsFeed({ items }: { items: FeedItem[] }) {
   return (
     <section className="panel h-[420px] overflow-y-auto p-4">
-      <p className="mb-4 text-xs uppercase tracking-[0.2em] text-terminal-dim">Realtime News</p>
+      <p className="mb-4 text-xs uppercase tracking-[0.2em] text-terminal-dim">Tin tức thời gian thực</p>
       <div className="space-y-3">
         {items.map((item) => (
           <article key={item.id} className="rounded-lg border border-terminal-line bg-terminal-panelSoft/40 p-3">
@@ -33,7 +33,7 @@ export function NewsFeed({ items }: { items: FeedItem[] }) {
             <div className="mt-2 flex items-center justify-between text-[11px] text-terminal-dim">
               <span>{item.source}</span>
               <a href={item.url} target="_blank" rel="noreferrer" className="hover:text-terminal-positive">
-                Open
+                Mở bài
               </a>
             </div>
           </article>

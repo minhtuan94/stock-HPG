@@ -15,14 +15,16 @@ const grotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "HPG Intelligence Terminal",
-  description: "Realtime HPG data aggregation and probabilistic recommendation dashboard",
+  title: "Trạm Phân tích HPG",
+  description: "Bảng điều khiển tổng hợp dữ liệu HPG thời gian thực và khuyến nghị theo xác suất",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className="dark">
-      <body className={`${mono.variable} ${grotesk.variable}`}>{children}</body>
+    <html lang="vi" className="dark" suppressHydrationWarning>
+      <body suppressHydrationWarning className={`${mono.variable} ${grotesk.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -2,12 +2,26 @@ import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
+  let closed = false;
+  let interval: ReturnType<typeof setInterval> | null = null;
+
+  const closeStream = () => {
+    if (closed) return;
+    closed = true;
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+  };
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
 
       const push = async () => {
+        if (closed) return;
+
         const rows = await prisma.news.findMany({
           orderBy: { publishedAt: "desc" },
           take: 15,
@@ -27,20 +41,24 @@ export async function GET() {
           })),
         };
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+        try {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+        } catch {
+          closeStream();
+        }
       };
 
-      await push();
-      const interval = setInterval(() => {
-        void push();
-      }, 15000);
+      request.signal.addEventListener("abort", closeStream);
 
-      // @ts-expect-error - custom property for cleanup in cancel.
-      controller._interval = interval;
+      await push();
+      interval = setInterval(() => {
+        void push().catch(() => {
+          closeStream();
+        });
+      }, 15000);
     },
     cancel() {
-      // @ts-expect-error - custom property from start.
-      if (this._interval) clearInterval(this._interval);
+      closeStream();
     },
   });
 

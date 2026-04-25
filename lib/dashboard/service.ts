@@ -63,10 +63,10 @@ export async function getDashboardSnapshot() {
       });
 
   const reasons = [
-    newsScore >= 55 ? "Sentiment tin tuc trong ngay nghieng tich cuc" : "Sentiment tin tuc trung lap/yeu",
-    technical?.summary || "Du lieu technical chua day du",
-    macroComputed.score >= 55 ? "Dieu kien vi mo ho tro tuong doi" : "Vi mo van con trai chieu",
-    financialScore >= 55 ? "Dinh gia va chat luong loi nhuan kha" : "Can theo doi them chi so tai chinh",
+    newsScore >= 55 ? "Sentiment tin tức trong ngày nghiêng tích cực" : "Sentiment tin tức trung lập/yếu",
+    technical?.summary || "Dữ liệu technical chưa đầy đủ",
+    macroComputed.score >= 55 ? "Điều kiện vĩ mô hỗ trợ tương đối" : "Vĩ mô vẫn còn trái chiều",
+    financialScore >= 55 ? "Định giá và chất lượng lợi nhuận khá" : "Cần theo dõi thêm chỉ số tài chính",
   ];
 
   const recommendation = generateRecommendation({

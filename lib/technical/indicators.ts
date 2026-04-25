@@ -74,9 +74,9 @@ export function computeTechnicalIndicators(prices: number[], volumes: number[]):
   score = clamp(score, 0, 100);
 
   const summary =
-    `HPG ${prices[prices.length - 1] > ma20 ? "dang tren" : "dang duoi"} MA20/MA50, ` +
-    `RSI=${rsiValue.toFixed(1)}, MACD ${macdLine > signal ? "cat len" : "cat xuong"}, ` +
-    `xac suat tang ngan han ${score}%.`;
+    `HPG ${prices[prices.length - 1] > ma20 ? "đang trên" : "đang dưới"} MA20/MA50, ` +
+    `RSI=${rsiValue.toFixed(1)}, MACD ${macdLine > signal ? "cắt lên" : "cắt xuống"}, ` +
+    `xác suất tăng ngắn hạn ${score}%.`;
 
   return {
     rsi: rsiValue,
